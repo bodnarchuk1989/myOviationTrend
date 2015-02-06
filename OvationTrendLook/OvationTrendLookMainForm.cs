@@ -5,6 +5,7 @@ using System.IO;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Drawing.Drawing2D;
 
 namespace OvationTrendLook
 {
@@ -13,7 +14,7 @@ namespace OvationTrendLook
 		Graphics g;
 		TableLayoutPanel tabeleLayout;
 		Panel panel1, panel2;
-		Button btn1;
+		Button btn1, btnDraw;
 		Label labelX;
 		Point savePrevioseLocation=new Point();
 		ArrayList dataList=new ArrayList();
@@ -34,13 +35,16 @@ namespace OvationTrendLook
 			btn1 = new Button ();
 			btn1.Text = "Open";
 			btn1.FlatStyle = FlatStyle.System;
-//			btn1.Click += delegate {
-//				onButtonClicked ();
-//			};
 			btn1.Click += new EventHandler (button1_Click);
 
+			btnDraw = new Button ();
+			btnDraw.Text="Draw";
+			btnDraw.FlatStyle = FlatStyle.System;
+			btnDraw.Location = new Point (btn1.Width+15,0);
+			btnDraw.Click += new EventHandler (brnDraw_Click);
+
 			labelX = new Label ();
-			labelX.Location = new Point (5, 25);
+			labelX.Location = new Point (3, 25);
 			labelX.Text = "X: ";
 
 			panel1 = new Panel ();
@@ -49,6 +53,7 @@ namespace OvationTrendLook
 			panel1.BackColor = Color.Wheat;
 			panel1.Controls.Add (btn1);
 			panel1.Controls.Add (labelX);
+			panel1.Controls.Add (btnDraw);
 
 			panel2 = new Panel ();
 			panel2.BackColor = Color.OrangeRed;
@@ -64,10 +69,8 @@ namespace OvationTrendLook
 			tabeleLayout.RowCount = 2;
 			tabeleLayout.Dock = DockStyle.Fill;
 			tabeleLayout.AutoSize = true;
-			//tabeleLayout.SetRow (panel1, 1);
 			tabeleLayout.Controls.Add (panel1);
 			tabeleLayout.Controls.Add (panel2);
-			//g=panel2.CreateGraphics ();
 			this.Controls.Add (tabeleLayout);
 
 			this.Resize += delegate {
@@ -141,7 +144,6 @@ namespace OvationTrendLook
 
 			for (int i = 1; i < lines.Length; i++) 
 			{
-				//dataList.Add((object)lines[i].Split(new Char[]{'\t'}));
 				String[] pointValue = lines [i].Split (new Char[]{ '\t' });
 				for (int j = 1; j < pointValue.Length; j++)
 				{
@@ -152,6 +154,34 @@ namespace OvationTrendLook
 			}
 
 			MessageBox.Show (string.Format ("Data was read. Count is "+ pointData.Length+" "+pointData[1].GetPointValueCount()));
+
+		}
+
+		void brnDraw_Click (object sender, EventArgs e)
+		{
+			Graphics g2;
+			g2=panel2.CreateGraphics();
+			g2.TranslateTransform (20F, 100F);
+
+			Color[] colors = new Color[]{Color.Red,Color.Blue,Color.White, Color.Green, Color.Brown, Color.Cyan, Color.Magenta }; 
+			Pen pen1 = new Pen (Color.Red);
+
+			float coef = 2.1F;
+			int colorIndex = 0;
+			float shiftZero = panel2.Height/2;
+			for (int i = 1; i < pointData.Length; i++) 
+			{
+				pen1.Color=colors[colorIndex];
+				if (colorIndex < colors.Length-1)
+					colorIndex++; else colorIndex=0;
+				pointData [i].calcMaxMin ();
+				coef = pointData [i].calcCoeficient (panel2.Height);
+				for (int j = 0; j < pointData [1].GetPointValueCount () - 1; j++)
+				{
+
+					g2.DrawLine (pen1, new PointF (j, pointData [i].GetPointValueData (j)*coef - shiftZero), new PointF (j + 1, pointData [i].GetPointValueData (j + 1)*coef - shiftZero));
+				}
+			}
 
 		}
 	}

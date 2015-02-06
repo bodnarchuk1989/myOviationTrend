@@ -8,7 +8,7 @@ namespace OvationTrendLook
 	{
 		String pointName, pointAlias;
 		List<float> pointValue;
-		float maxValue, minValue;
+		float maxValue, minValue, coeficient;
 		public PointData (String poitName1)
 		{
 			pointValue = new List<float> ();
@@ -45,6 +45,32 @@ namespace OvationTrendLook
 		{
 			return pointValue.Count;
 		}
+
+		public float GetPointValueData(int i)
+		{	
+			return pointValue [i];
+		}
+
+		public void calcMaxMin()
+		{
+			float item = pointValue [0];
+			maxValue = item;
+			for (int i = 0; i < pointValue.Count; i++) 
+			{
+				if (maxValue < pointValue [i])
+					maxValue = pointValue [i];
+				if (minValue > pointValue [i])
+					minValue = pointValue [i];
+			}
+			//maxValue += 1;
+			//minValue -= 1;
+		}
+
+		public float calcCoeficient(int h)
+		{
+			return coeficient = h/(maxValue - minValue);
+		}
+
 	}
 }
 
