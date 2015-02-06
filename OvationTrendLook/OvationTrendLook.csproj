@@ -39,5 +39,6 @@
   <ItemGroup>
     <Compile Include="OvationTrendLook.cs" />
     <Compile Include="OvationTrendLookMainForm.cs" />
+    <Compile Include="PointData.cs" />
   </ItemGroup>
 </Project>

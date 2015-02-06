@@ -3,6 +3,8 @@ using System.Windows.Forms;
 using System.Drawing;
 using System.IO;
 using System.Collections;
+using System.Collections.Generic;
+using System.Globalization;
 
 namespace OvationTrendLook
 {
@@ -15,6 +17,7 @@ namespace OvationTrendLook
 		Label labelX;
 		Point savePrevioseLocation=new Point();
 		ArrayList dataList=new ArrayList();
+		PointData[] pointData;
 		public OvationTrendLookMainForm()
 		{
 
@@ -120,18 +123,35 @@ namespace OvationTrendLook
 			}
 		}
 
+
+
 		void readDataFromFile (string str)
 		{
 			StreamReader file = new StreamReader (str);
 			string[] lines = File.ReadAllLines (str);
-			//string[] str1 = lines [0].Split (new Char[]{'\t'});
 
-			for (int i = 0; i < lines.Length; i++) 
+			string[] strName = lines [0].Split (new Char[]{ '\t' });
+			//pointData[strName.Length] = new PointData();
+			pointData = new PointData[strName.Length];
+			for (int i = 0; i < pointData.Length; i++)
 			{
-				dataList.Add((object)lines[i].Split(new Char[]{'\t'}));
+				pointData[i]=new PointData(strName[i]);
+	
 			}
 
-			MessageBox.Show ("Data was read. Count is "+lines.Length+" "+dataList.Capacity);
+			for (int i = 1; i < lines.Length; i++) 
+			{
+				//dataList.Add((object)lines[i].Split(new Char[]{'\t'}));
+				String[] pointValue = lines [i].Split (new Char[]{ '\t' });
+				for (int j = 1; j < pointValue.Length; j++)
+				{
+					float f = float.Parse (pointValue[j], CultureInfo.InvariantCulture.NumberFormat);
+
+					pointData [j].AddValue (f);
+				}
+			}
+
+			MessageBox.Show (string.Format ("Data was read. Count is "+ pointData.Length+" "+pointData[1].GetPointValueCount()));
 
 		}
 	}
