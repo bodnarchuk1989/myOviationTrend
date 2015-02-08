@@ -35,7 +35,7 @@ namespace OvationTrendLook
 			pointValue.Add(float.Parse(str,CultureInfo.InvariantCulture.NumberFormat));
 		}
 
-		public void SetMaxMinValue(float max, float min)
+		public void SetMaxMinValue(float min, float max)
 		{
 			maxValue = max;
 			minValue = min;
@@ -48,13 +48,13 @@ namespace OvationTrendLook
 
 		public float GetPointValueData(int i)
 		{	
-			return pointValue [i];
+			return -pointValue [i];
 		}
 
 		public void calcMaxMin()
 		{
-			float item = pointValue [0];
-			maxValue = item;
+			maxValue = pointValue [0];
+			//minValue=pointValue [0];
 			for (int i = 0; i < pointValue.Count; i++) 
 			{
 				if (maxValue < pointValue [i])
@@ -62,8 +62,6 @@ namespace OvationTrendLook
 				if (minValue > pointValue [i])
 					minValue = pointValue [i];
 			}
-			//maxValue += 1;
-			//minValue -= 1;
 		}
 
 		public float calcCoeficient(int h)
@@ -71,6 +69,15 @@ namespace OvationTrendLook
 			return coeficient = h/(maxValue - minValue);
 		}
 
+		public float getScaleShift()
+		{
+			return coeficient * maxValue;
+		}
+
+		public List<float> getPoitDataValue()
+		{
+			return pointValue;
+		}
 	}
 }
 
