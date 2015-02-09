@@ -17,7 +17,7 @@ namespace OvationTrendLook
 		TableLayoutPanel tabeleLayout;
 		Panel panel1, panel2;
 		Button btn1, btnDraw;
-		Label labelX;
+		Label labelTime, labelValue;
 
 		Chart chart1;
 		ChartArea chartArea1;
@@ -52,17 +52,22 @@ namespace OvationTrendLook
 			btnDraw.Location = new Point (btn1.Width+15,0);
 			btnDraw.Click += new EventHandler (brnDraw_Click);
 
-			labelX = new Label ();
-			labelX.Location = new Point (3, 25);
-			labelX.Text = "X: ";
+			labelTime = new Label ();
+			labelTime.Location = new Point (3, 25);
+			labelTime.Text = "X: ";
+
+			labelValue = new Label ();
+			labelValue.Location = new Point (3, 45);
+			labelValue.Text = "V: ";
 
 			panel1 = new Panel ();
 			panel1.Dock = DockStyle.Bottom;
 			panel1.BorderStyle = BorderStyle.FixedSingle;
 			panel1.BackColor = Color.Wheat;
 			panel1.Controls.Add (btn1);
-			panel1.Controls.Add (labelX);
+			panel1.Controls.Add (labelTime);
 			panel1.Controls.Add (btnDraw);
+			panel1.Controls.Add (labelValue);
 
 
 			chart1 = new Chart ();
@@ -74,16 +79,16 @@ namespace OvationTrendLook
 			chartArea1.AxisX.LabelStyle.Format = "hh:mm";
 			chartArea1.AxisX.MajorGrid.LineColor = Color.LightGray;
 			chartArea1.AxisY.MajorGrid.LineColor = Color.LightGray;
+			//chartArea1.BackColor = Color.Black;
 			chart1.ChartAreas.Add (chartArea1);
 			chart1.ChartAreas[0].CursorX.IsUserEnabled = true;
 			chart1.ChartAreas[0].CursorX.IsUserSelectionEnabled = true;
 			chart1.ChartAreas[0].AxisX.ScaleView.Zoomable = true;
 			chart1.ChartAreas[0].AxisX.ScrollBar.IsPositionedInside = true;
-			chart1.ChartAreas [0].CursorX.Interval = 0.01;
-
-			chart1.MouseMove += delegate {
-				onMouseMove ();
-			};
+			chart1.ChartAreas [0].CursorX.Interval = 0.0016;
+			//chart1.ChartAreas [0].CursorX.IntervalType = (DateTimeIntervalType)IntervalType.Number;
+			chart1.MouseMove += new MouseEventHandler (OnMouseMove);
+		
 
 
 			panel2 = new Panel ();
@@ -92,9 +97,9 @@ namespace OvationTrendLook
 			panel2.AutoSize = true;
 			//panel2.SuspendLayout();
 			panel2.Controls.Add (chart1);
-			panel2.MouseMove += delegate {
-				onMouseMove ();
-			};
+			//panel2.MouseMove += delegate {
+		    //		onMouseMove ();
+			//};
 
 
 			tabeleLayout = new TableLayoutPanel ();
@@ -113,14 +118,25 @@ namespace OvationTrendLook
 			g = panel2.CreateGraphics ();
 		}
 
-		void onMouseMove ()
+		void OnMouseMove (object sender, MouseEventArgs e)
 		{	
-			//Point mousePositionOnPanel=new Point(0,0);
-			//mousePositionOnPanel = tabeleLayout.PointToClient (System.Windows.Forms.Cursor.Position);
+			if (pointData != null)
+			{
+			Point mousePositionOnPanel=new Point(e.X, e.Y);
+			chart1.ChartAreas [0].CursorX.SetCursorPixelPosition (mousePositionOnPanel, true);
+			chart1.ChartAreas [0].CursorY.SetCursorPixelPosition (mousePositionOnPanel, true);
+
 			double pX = chartArea1.CursorX.Position; //X Axis Coordinate of your mouse cursor
-			double pY = chartArea1.CursorY.Position;//Y Axis Coordinate of your mouse cursor
-			labelX.Text = "X Y"+pX+" : "+pY;
+			float pY=0;// = chartArea1.CursorY.Position;//Y Axis Coordinate of your mouse cursor
+			if ((int)(pX*600)<600)
+			pY = pointData [1].GetPointValueData ((int)(pX * 600));
+			labelTime.Width = 200;
+			labelTime.Text = pointData[1].PointName+":"+pY;
+			pY = pointData [2].GetPointValueData ((int)(pX * 600));
+			labelValue.Width = 200;
+			labelValue.Text = pointData[2].PointName+":"+pY;
 			//drawLine (g, mousePositionOnPanel);
+			}
 		}
 
 		void drawLine (Graphics g1, Point mousePositionOnPanel)
@@ -174,7 +190,6 @@ namespace OvationTrendLook
 			for (int i = 0; i < pointData.Length; i++)
 			{
 				pointData[i]=new PointData(strName[i]);
-	
 			}
 
 			date = new int[lines.Length - 1];
@@ -197,6 +212,12 @@ namespace OvationTrendLook
 		void brnDraw_Click (object sender, EventArgs e)
 		{
 			bool drawpress = false;
+
+//			series = null;
+//			chart1.Series.Clear ();
+//			if (drawpress)
+//				chart1.ChartAreas.Clear;
+
 			if (pointData != null & !drawpress) {
 
 				drawpress = true;
@@ -205,11 +226,10 @@ namespace OvationTrendLook
 				// Set custom chart area position
 				chart1.ChartAreas["Default"].Position = new ElementPosition(5,5,90,90);
 				chart1.ChartAreas["Default"].InnerPlotPosition = new ElementPosition(0,0,100,100);
-
 				// Create extra Y axis for second and third series
 				for (int i = 1; i < pointData.Length; i++) {
 					chart1.Series ["Series"+i].Points.DataBindY (pointData [i].getPoitDataValue ());
-					CreateYAxis(chart1,chart1.ChartAreas["Default"], chart1.Series["Series"+i], 2*i,2);
+					CreateYAxis(chart1,chart1.ChartAreas["Default"], chart1.Series["Series"+i], 2*i,2,pointData[i]);
 				}
 			} else
 				MessageBox.Show ("Data was not load");
@@ -227,7 +247,7 @@ namespace OvationTrendLook
 				series [i] = new Series ();
 				series [i].Name = "Series" + i;
 				series [i].BorderColor = colors [colorIndex];
-				series [i].BorderWidth = 2;
+				series [i].BorderWidth = 1;
 				//series [i].ChartArea = "Default";
 				series [i].ChartType = SeriesChartType.Line;
 				//series [i].Legend = "Default";
@@ -239,7 +259,7 @@ namespace OvationTrendLook
 			}
 		}
 
-		public void CreateYAxis(Chart chart, ChartArea area, Series series, float axisOffset, float labelsSize)
+		public void CreateYAxis(Chart chart, ChartArea area, Series series, float axisOffset, float labelsSize, PointData pointData1)
 		{
 			// Create new chart area for original series
 			ChartArea areaSeries = chart.ChartAreas.Add("ChartArea_" + series.Name);
@@ -254,6 +274,9 @@ namespace OvationTrendLook
 			areaSeries.AxisY.MajorTickMark.Enabled = false;
 			areaSeries.AxisY.LabelStyle.Enabled = false;
 			areaSeries.AxisY.IsStartedFromZero = area.AxisY.IsStartedFromZero;
+			pointData1.calcMaxMin ();
+			//areaSeries.AxisY.Maximum = pointData1.MaxScale;
+			//areaSeries.AxisY.Minimum = pointData1.MinScale;
 
 
 			series.ChartArea = areaSeries.Name;

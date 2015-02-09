@@ -20,9 +20,10 @@ namespace OvationTrendLook
 
 		}
 
-		public void SetPointName (String name)
+		public string PointName
 		{
-			pointName = name;
+			set { pointName = value; }
+			get { return pointName; }
 		}
 
 		public void AddValue(float values)
@@ -48,7 +49,7 @@ namespace OvationTrendLook
 
 		public float GetPointValueData(int i)
 		{	
-			return -pointValue [i];
+			return pointValue [i];
 		}
 
 		public void calcMaxMin()
@@ -77,6 +78,18 @@ namespace OvationTrendLook
 		public List<float> getPoitDataValue()
 		{
 			return pointValue;
+		}
+
+		public float MaxScale
+		{
+			get {return maxValue;}
+			set { maxValue = value;}
+		}
+
+		public float MinScale
+		{
+			get {return minValue;}
+			set { minValue = value;}
 		}
 	}
 }
