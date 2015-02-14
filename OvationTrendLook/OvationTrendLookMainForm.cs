@@ -44,12 +44,14 @@ namespace OvationTrendLook
 			btn1 = new Button ();
 			btn1.Text = "Open";
 			btn1.FlatStyle = FlatStyle.System;
+			btn1.TabIndex = 0;
 			btn1.Click += new EventHandler (button1_Click);
 
 			btnDraw = new Button ();
 			btnDraw.Text="Draw";
 			btnDraw.FlatStyle = FlatStyle.System;
 			btnDraw.Location = new Point (btn1.Width+15,0);
+			btnDraw.TabIndex = 1;
 			btnDraw.Click += new EventHandler (brnDraw_Click);
 
 			labelTime = new Label ();
@@ -86,6 +88,9 @@ namespace OvationTrendLook
 			chart1.ChartAreas[0].AxisX.ScaleView.Zoomable = true;
 			chart1.ChartAreas[0].AxisX.ScrollBar.IsPositionedInside = true;
 			chart1.ChartAreas [0].CursorX.Interval = 0.0016;
+			//chart1.ChartAreas [0].CursorX.LineColor = Color.Black;
+
+
 			//chart1.ChartAreas [0].CursorX.IntervalType = (DateTimeIntervalType)IntervalType.Number;
 			chart1.MouseMove += new MouseEventHandler (OnMouseMove);
 		
@@ -182,7 +187,7 @@ namespace OvationTrendLook
 		void readDataFromFile (string str)
 		{
 			StreamReader file = new StreamReader (str);
-			string[] lines = File.ReadAllLines (str);
+			string[] lines = File.ReadAllLines (str, System.Text.Encoding.Unicode);
 
 			string[] strName = lines [0].Split ('\t');
 			//pointData[strName.Length] = new PointData();
@@ -200,6 +205,7 @@ namespace OvationTrendLook
 				date [i - 1] = i;
 				for (int j = 1; j < pointValue.Length; j++)
 				{
+					pointValue[j]=pointValue[j].Trim ();
 					float f = float.Parse (pointValue[j], CultureInfo.InvariantCulture.NumberFormat);
 					pointData [j].AddValue (f);
 				}
@@ -231,6 +237,17 @@ namespace OvationTrendLook
 					chart1.Series ["Series"+i].Points.DataBindY (pointData [i].getPoitDataValue ());
 					CreateYAxis(chart1,chart1.ChartAreas["Default"], chart1.Series["Series"+i], 2*i,2,pointData[i]);
 				}
+				Label[] listOfPoints = new Label[pointData.Length];
+				for (int i=0; i<listOfPoints.Length;i++)
+				{
+					listOfPoints [i] = new Label ();
+					listOfPoints[i].Text=pointData[i].PointName;
+					listOfPoints [i].Location=new Point(300, (i * 15));
+					//listOfPoints [i].Width = 90;
+					listOfPoints [i].AutoSize = true;
+					panel1.Controls.Add (listOfPoints [i]);
+				}
+
 			} else
 				MessageBox.Show ("Data was not load");
 
