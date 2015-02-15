@@ -7,7 +7,7 @@ namespace OvationTrendLook
 	public class PointData
 	{
 		String pointName, pointAlias;
-		List<float> pointValue;
+		private List<float> pointValue;
 		float maxValue, minValue, coeficient;
 		public PointData (String poitName1)
 		{
