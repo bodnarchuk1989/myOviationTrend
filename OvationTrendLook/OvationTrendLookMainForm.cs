@@ -15,7 +15,7 @@ namespace OvationTrendLook
 	{
 		Graphics g;
 		Panel panel1, panel2;
-		Button btnOpen, btnDraw;
+		//Button btnOpen, btnDraw;
 		Label labelTime, labelValue;
 		Label[,] listOfPoints;
 		Chart chart1;
@@ -38,20 +38,21 @@ namespace OvationTrendLook
 			this.Height = 1024/2;
 			this.Width = 1024;
 
+            addMainMenu();
 
-			btnOpen = new Button ();
-			btnOpen.Text = "Open";
-			btnOpen.FlatStyle = FlatStyle.System;
-			btnOpen.TabIndex = 0;
-			btnOpen.Click += new EventHandler (button1_Click);
+//			btnOpen = new Button ();
+//			btnOpen.Text = "Open";
+//			btnOpen.FlatStyle = FlatStyle.System;
+//			btnOpen.TabIndex = 0;
+//			btnOpen.Click += new EventHandler (btnOpen_Click);
 
 
-			btnDraw = new Button ();
-			btnDraw.Text="Draw";
-			btnDraw.FlatStyle = FlatStyle.System;
-			btnDraw.Location = new Point (btnOpen.Width+15,0);
-			btnDraw.TabIndex = 1;
-			btnDraw.Click += new EventHandler (brnDraw_Click);
+//			btnDraw = new Button ();
+//			btnDraw.Text="Draw";
+//			btnDraw.FlatStyle = FlatStyle.System;
+//			btnDraw.Location = new Point (btnOpen.Width+15,0);
+//			btnDraw.TabIndex = 1;
+//			btnDraw.Click += new EventHandler (brnDraw_Click);
 
 
 			labelTime = new Label ();
@@ -68,10 +69,10 @@ namespace OvationTrendLook
 			panel1.Dock = DockStyle.Fill;
 			panel1.BorderStyle = BorderStyle.FixedSingle;
 			panel1.BackColor = Color.Wheat;
-			panel1.Controls.Add (btnOpen);
-			panel1.Controls.Add (labelTime);
-			panel1.Controls.Add (btnDraw);
-			panel1.Controls.Add (labelValue);
+			//panel1.Controls.Add (btnOpen);
+			//panel1.Controls.Add (labelTime);
+			//panel1.Controls.Add (btnDraw);
+			//panel1.Controls.Add (labelValue);
 
 
 			chart1 = new Chart ();
@@ -89,8 +90,7 @@ namespace OvationTrendLook
 			chart1.ChartAreas[0].CursorX.IsUserSelectionEnabled = true;
 			chart1.ChartAreas[0].AxisX.ScaleView.Zoomable = true;
 			chart1.ChartAreas[0].AxisX.ScrollBar.IsPositionedInside = true;
-			chart1.ChartAreas [0].CursorX.Interval = 0.0016;
-			chart1.MouseMove += new MouseEventHandler (OnMouseMove);
+			chart1.ChartAreas [0].CursorX.Interval = 0.0016;		
 		
 
 			panel2 = new Panel ();
@@ -104,6 +104,7 @@ namespace OvationTrendLook
 			splitContainer.Orientation = Orientation.Horizontal;
 			splitContainer.Dock = DockStyle.Fill;
 			splitContainer.BorderStyle = BorderStyle.Fixed3D;
+            splitContainer.SplitterDistance = 1;
 			splitContainer.Panel1.Controls.Add (panel1);
 			splitContainer.Panel2.Controls.Add (panel2);
 			this.Controls.Add (splitContainer);
@@ -111,16 +112,52 @@ namespace OvationTrendLook
 			g = panel2.CreateGraphics ();
 		}
 
+        void addMainMenu()
+        {
+            MainMenu mainMenu = new MainMenu();
+
+            //Menu File
+            MenuItem mFile = new MenuItem("File");
+            //SubMenu File->Opne
+            MenuItem mOpen = new MenuItem("Open");
+            mOpen.Click += new EventHandler(btnOpen_Click);
+            mFile.MenuItems.Add(mOpen);
+            //SubMenu File->Draw
+            MenuItem mDraw = new MenuItem("Draw");
+            mDraw.Click += new EventHandler(brnDraw_Click);
+            mFile.MenuItems.Add(mDraw);
+            //SubMenu File->Save as image
+            MenuItem mSaveToImage = new MenuItem("Seve as image");
+            mSaveToImage.Click += new EventHandler(btnSaveToImage_Click);
+            mFile.MenuItems.Add(mSaveToImage);
+            //Add menu File to mainMenu
+            mainMenu.MenuItems.Add(mFile);
+
+            //Menu Trend
+            MenuItem mTrend = new MenuItem("Trend");
+            //SubMenu Trend->Options
+            MenuItem mTrendOptions = new MenuItem("Options");
+            mTrendOptions.Click += new EventHandler(openOptionsForm);
+            mTrend.MenuItems.Add(mTrendOptions);
+            //SubMenu Trend->EditPointNames
+            MenuItem mTrendEditPointNames = new MenuItem("Edit point names");
+            mTrend.MenuItems.Add(mTrendEditPointNames);
+            //Add menu options to mainMenu
+            mainMenu.MenuItems.Add(mTrend);
+
+            this.Menu = mainMenu;
+        }
+
 		void OnMouseMove (object sender, MouseEventArgs e)
 		{	
-			if (pointData != null)
+            if (pointData != null & chart1.Series!=null)
 			{
 			Point mousePositionOnPanel=new Point(e.X, e.Y);
 			chart1.ChartAreas [0].CursorX.SetCursorPixelPosition (mousePositionOnPanel, true);
 			chart1.ChartAreas [0].CursorY.SetCursorPixelPosition (mousePositionOnPanel, true);
 
 			double pX1=0, pX = chartArea1.CursorX.Position; //X Axis Coordinate of your mouse cursor
-			float pY=0; // = chartArea1.CursorY.Position;//Y Axis Coordinate of your mouse cursor
+//			float pY=0; // = chartArea1.CursorY.Position;//Y Axis Coordinate of your mouse cursor
 			if ((int)(pX * 600) < 600)	pX1 = pX * 600;
 //			pY = pointData [1].GetPointValueData ((int)(pX * 600));
 //			labelTime.Width = 200;
@@ -151,7 +188,7 @@ namespace OvationTrendLook
 		}
 
 
-		void button1_Click (object sender, EventArgs e)
+		void btnOpen_Click (object sender, EventArgs e)
 		{
 			OpenFileDialog openFileDialog1 = new OpenFileDialog();
 			openFileDialog1.InitialDirectory = "c:\\" ;
@@ -208,17 +245,10 @@ namespace OvationTrendLook
 
 		void brnDraw_Click (object sender, EventArgs e)
 		{
-			bool drawpress = false;
-
-//			series = null;
-//			chart1.Series.Clear ();
-//			if (drawpress)
-//				chart1.ChartAreas.Clear;
-
-			if (pointData != null & !drawpress) {
-
-				drawpress = true;
-				initializeCahrtSeries ();
+			if (pointData != null) {
+            
+				// Initialize series of chart1 for each point
+                initializeCahrtSeries ();
 
 				// Set custom chart area position
 				chart1.ChartAreas["Default"].Position = new ElementPosition(5,5,90,90);
@@ -231,17 +261,20 @@ namespace OvationTrendLook
 
 				listOfPoints = new Label[pointData.Length,2];
 				for (int i = 0; i < listOfPoints.Length/2; i++)
-					for (int j = 0; j < 2; j++) {
+					for (int j = 0; j <2; j++) {
 						{
 							listOfPoints [i, j] = new Label ();
-							listOfPoints [i, j].Location = new Point (300+(j*300), (i * 15));
+							listOfPoints [i, j].Location = new Point (5+(j*300), (i * 15));
 							listOfPoints [i, j].AutoSize = true;
+                            listOfPoints[i, j].ForeColor = pointData[i].ColorPoint;
 							if(j>0) listOfPoints [i, j].Text = "0";
 								else listOfPoints [i, j].Text = pointData [i].PointName;
 							panel1.Controls.Add (listOfPoints [i, j]);
 						}
 					}
 
+
+                chart1.MouseMove += new MouseEventHandler (OnMouseMove); //MouseMove event on Chart1, Panel2 will work after clicked btnDraw
 			} else
 				MessageBox.Show ("Data was not load");
 
@@ -250,7 +283,7 @@ namespace OvationTrendLook
 
 		void initializeCahrtSeries ()
 		{
-			Color[] colors = {Color.Red,Color.Blue,Color.White, Color.Green, Color.Brown, Color.Cyan, Color.Magenta }; 
+            Color[] colors = {Color.Red,Color.Blue,Color.Orange, Color.Green, Color.Brown, Color.Cyan, Color.Magenta }; 
 			int colorIndex = 0;
 			series = new Series[pointData.Length];
 
@@ -259,6 +292,7 @@ namespace OvationTrendLook
 				series [i] = new Series ();
 				series [i].Name = "Series" + i;
 				series [i].BorderColor = colors [colorIndex];
+                pointData[i].ColorPoint = colors[colorIndex];
 				series [i].BorderWidth = 1;
 				//series [i].ChartArea = "Default";
 				series [i].ChartType = SeriesChartType.Line;
@@ -295,7 +329,7 @@ namespace OvationTrendLook
 
 			// Create new chart area for axis
 			ChartArea areaAxis = chart.ChartAreas.Add("AxisY_" + series.ChartArea);
-			areaAxis.BackColor = Color.Transparent;
+            areaAxis.BackColor = Color.Transparent;
 			areaAxis.BorderColor = Color.Transparent;
 			areaAxis.Position.FromRectangleF(chart.ChartAreas[series.ChartArea].Position.ToRectangleF());
 			areaAxis.InnerPlotPosition.FromRectangleF(chart.ChartAreas[series.ChartArea].InnerPlotPosition.ToRectangleF());
@@ -310,7 +344,7 @@ namespace OvationTrendLook
 
 			// Hide copied series
 			seriesCopy.IsVisibleInLegend = false;
-			seriesCopy.Color = Color.Transparent;
+            seriesCopy.Color = pointData1.ColorPoint; //Color.Transparent  Change color For series
 			seriesCopy.BorderColor = Color.Transparent;
 			seriesCopy.ChartArea = areaAxis.Name;
 
@@ -328,6 +362,28 @@ namespace OvationTrendLook
 			//areaAxis.InnerPlotPosition.X += labelsSize;
 
 		}
+
+        void btnSaveToImage_Click(object sender, EventArgs e)
+        {
+            SaveFileDialog saveDialog = new SaveFileDialog();
+            saveDialog.InitialDirectory = @"C:\";
+            saveDialog.Title = "Save image";
+                         
+            string name = @"C:\test";
+            if (saveDialog.ShowDialog() == DialogResult.OK)
+                name = saveDialog.FileName+".png";
+            Bitmap bmp = new Bitmap(this.Width, this.Height);
+            this.DrawToBitmap(bmp,new Rectangle(0,0,this.Width,this.Height));
+            bmp.Save(name);
+            MessageBox.Show("File save. Path: "+name);
+        }
+
+        void openOptionsForm(object sender, EventArgs e)
+        {
+            OptionsForm optionsForm = new OptionsForm(); 
+            optionsForm.pointDataSet(pointData);
+            optionsForm.Show();
+        }
 	}
 }
 

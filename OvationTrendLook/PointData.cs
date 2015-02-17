@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Drawing;
 
 namespace OvationTrendLook
 {
@@ -9,6 +10,7 @@ namespace OvationTrendLook
 		String pointName, pointAlias;
 		private List<float> pointValue;
 		float maxValue, minValue, coeficient;
+        Color pointColor;
 		public PointData (String poitName1)
 		{
 			pointValue = new List<float> ();
@@ -25,6 +27,18 @@ namespace OvationTrendLook
 			set { pointName = value; }
 			get { return pointName; }
 		}
+
+		public string PointAlias
+		{
+			set { pointAlias = value; }
+			get { return pointAlias; }
+		}
+
+        public Color ColorPoint
+        {
+            set{ pointColor = value;}
+            get{ return pointColor;}
+        }
 
 		public void AddValue(float values)
 		{
