@@ -15,16 +15,12 @@ namespace OvationTrendLook
 	{
 		Graphics g;
 		Panel panel1, panel2;
-		//Button btnOpen, btnDraw;
-		Label labelTime, labelValue;
 		Label[,] listOfPoints;
 		Chart chart1;
 		ChartArea chartArea1;
 		Series[] series;
-
-		Point savePrevioseLocation=new Point();
 		PointData[] pointData;
-		int[] date;
+        DateTime[] date;
 
 		public OvationTrendLookMainForm()
 		{
@@ -40,39 +36,11 @@ namespace OvationTrendLook
 
             addMainMenu();
 
-//			btnOpen = new Button ();
-//			btnOpen.Text = "Open";
-//			btnOpen.FlatStyle = FlatStyle.System;
-//			btnOpen.TabIndex = 0;
-//			btnOpen.Click += new EventHandler (btnOpen_Click);
-
-
-//			btnDraw = new Button ();
-//			btnDraw.Text="Draw";
-//			btnDraw.FlatStyle = FlatStyle.System;
-//			btnDraw.Location = new Point (btnOpen.Width+15,0);
-//			btnDraw.TabIndex = 1;
-//			btnDraw.Click += new EventHandler (brnDraw_Click);
-
-
-			labelTime = new Label ();
-			labelTime.Location = new Point (3, 25);
-			labelTime.Text = "X: ";
-
-
-			labelValue = new Label ();
-			labelValue.Location = new Point (3, 45);
-			labelValue.Text = "V: ";
-
 
 			panel1 = new Panel ();
 			panel1.Dock = DockStyle.Fill;
 			panel1.BorderStyle = BorderStyle.FixedSingle;
 			panel1.BackColor = Color.Wheat;
-			//panel1.Controls.Add (btnOpen);
-			//panel1.Controls.Add (labelTime);
-			//panel1.Controls.Add (btnDraw);
-			//panel1.Controls.Add (labelValue);
 
 
 			chart1 = new Chart ();
@@ -90,8 +58,8 @@ namespace OvationTrendLook
 			chart1.ChartAreas[0].CursorX.IsUserSelectionEnabled = true;
 			chart1.ChartAreas[0].AxisX.ScaleView.Zoomable = true;
 			chart1.ChartAreas[0].AxisX.ScrollBar.IsPositionedInside = true;
-			chart1.ChartAreas [0].CursorX.Interval = 0.0016;		
-		
+			chart1.ChartAreas [0].CursorX.Interval = 0.0016;
+
 
 			panel2 = new Panel ();
 			panel2.BackColor = Color.OrangeRed;
@@ -109,7 +77,7 @@ namespace OvationTrendLook
 			splitContainer.Panel2.Controls.Add (panel2);
 			this.Controls.Add (splitContainer);
 
-			g = panel2.CreateGraphics ();
+            g = chart1.CreateGraphics ();
 		}
 
         void addMainMenu()
@@ -173,19 +141,12 @@ namespace OvationTrendLook
 			}
 		}
 
-		void drawLine (Graphics g1, Point mousePositionOnPanel)
-		{
-			g1.Clear (Color.Black);
-			Pen myPen = new Pen (Color.Red,1);
-			g1.DrawLine(myPen,new Point(mousePositionOnPanel.X,0),new Point(mousePositionOnPanel.X,1024));
-			savePrevioseLocation = mousePositionOnPanel;
 
-		}
-
-		void formSizeChanged ()
-		{
-			g = panel2.CreateGraphics ();
-		}
+        void onDoubleClick(object sender, MouseEventArgs e)
+        {
+            g.DrawLine(new Pen(Color.Green, 2), new Point(e.X ,0), new Point(e.X, chart1.Height));
+            MessageBox.Show("DoubleClick");
+        }
 
 
 		void btnOpen_Click (object sender, EventArgs e)
@@ -225,12 +186,13 @@ namespace OvationTrendLook
 				pointData[i]=new PointData(strName[i]);
 			}
 
-			date = new int[lines.Length - 1];
+            date = new DateTime[lines.Length - 1];
 			for (int i = 1; i < lines.Length; i++) 
 			{
 				String[] pointValue = lines [i].Split ('\t');
-				//date [i - 1] = DateTime.ParseExact ("17.07.2013 13:47:30.1000", "dd.MM.yyyy HH:mm:ss,ffff", System.Globalization.CultureInfo.InvariantCulture);
-				date [i - 1] = i;
+                pointValue[0]=pointValue[0].Trim ();
+                date[i - 1] = DateTime.Parse(pointValue[0]);
+                //date[i - 1] = DateTime.ParseExact(pointValue[0], "dd.MM.yyyy HH:mm:ss.f", System.Globalization.CultureInfo.InvariantCulture); 
 				for (int j = 1; j < pointValue.Length; j++)
 				{
 					pointValue[j]=pointValue[j].Trim ();
@@ -253,6 +215,7 @@ namespace OvationTrendLook
 				// Set custom chart area position
 				chart1.ChartAreas["Default"].Position = new ElementPosition(5,5,90,90);
 				chart1.ChartAreas["Default"].InnerPlotPosition = new ElementPosition(0,0,100,100);
+               // chart1.ChartAreas["Default"].AxisX=
 				// Create extra Y axis for second and third series
 				for (int i = 1; i < pointData.Length; i++) {
 					chart1.Series ["Series"+i].Points.DataBindY (pointData [i].getPoitDataValue ());
@@ -272,9 +235,8 @@ namespace OvationTrendLook
 							panel1.Controls.Add (listOfPoints [i, j]);
 						}
 					}
-
-
                 chart1.MouseMove += new MouseEventHandler (OnMouseMove); //MouseMove event on Chart1, Panel2 will work after clicked btnDraw
+                chart1.MouseDoubleClick += new MouseEventHandler(onDoubleClick);
 			} else
 				MessageBox.Show ("Data was not load");
 
@@ -313,9 +275,9 @@ namespace OvationTrendLook
 			areaSeries.BorderColor = Color.Transparent;
 			areaSeries.Position.FromRectangleF(area.Position.ToRectangleF());
 			areaSeries.InnerPlotPosition.FromRectangleF(area.InnerPlotPosition.ToRectangleF());
-			areaSeries.AxisX.MajorGrid.Enabled = false;
-			areaSeries.AxisX.MajorTickMark.Enabled = false;
-			areaSeries.AxisX.LabelStyle.Enabled = false;
+            areaSeries.AxisX.MajorGrid.Enabled = false;
+            areaSeries.AxisX.MajorTickMark.Enabled = true;
+			areaSeries.AxisX.LabelStyle.Enabled = true;
 			areaSeries.AxisY.MajorGrid.Enabled = false;
 			areaSeries.AxisY.MajorTickMark.Enabled = false;
 			areaSeries.AxisY.LabelStyle.Enabled = false;
@@ -352,7 +314,7 @@ namespace OvationTrendLook
 			areaAxis.AxisX.LineWidth = 0;
 			areaAxis.AxisX.MajorGrid.Enabled = false;
 			areaAxis.AxisX.MajorTickMark.Enabled = false;
-			areaAxis.AxisX.LabelStyle.Enabled = false;
+            areaAxis.AxisX.LabelStyle.Enabled = false;
 			areaAxis.AxisY.MajorGrid.Enabled = false;
 			areaAxis.AxisY.IsStartedFromZero = area.AxisY.IsStartedFromZero;
 			areaAxis.AxisY.LabelStyle.Font = area.AxisY.LabelStyle.Font;
@@ -378,11 +340,11 @@ namespace OvationTrendLook
             MessageBox.Show("File save. Path: "+name);
         }
 
+
         void openOptionsForm(object sender, EventArgs e)
         {
             OptionsForm optionsForm = new OptionsForm(); 
             optionsForm.pointDataSet(pointData);
-            optionsForm.Show();
         }
 	}
 }
