@@ -14,13 +14,16 @@ namespace OvationTrendLook
     class OptionsForm :Form
 	{
         Form optionsForm;
-        Button btnClose, btnOK;
+        OvationTrendLookMainForm ovationTrendLookMainForm;
+        Button btnClose, btnOK, btnSave;
         PointData[] pointData;
         ListBox listBox;
         Label labelMaxScale, labelMinScale, labelColor;
         TextBox tboxMaxScale, tboxMinScale, tboxColor;
-        public OptionsForm()
+        public OptionsForm(OvationTrendLookMainForm f)
         {
+            ovationTrendLookMainForm = f;
+
             optionsForm=new Form();
             optionsForm.Height = 500;
             optionsForm.Width = 500;
@@ -72,10 +75,16 @@ namespace OvationTrendLook
             optionsForm.Controls.Add(btnClose);
 
             btnOK = new Button();
-            btnOK.Text="Close";
-            btnOK.Location = new Point(optionsForm.Width-btnOK.Width-30, 10);
+            btnOK.Text="OK";
+            btnOK.Location = new Point(optionsForm.Width-btnOK.Width-30, 35);
             btnOK.Click += new EventHandler(btnOK_Click);
             optionsForm.Controls.Add(btnOK);
+
+            btnSave = new Button();
+            btnSave.Text="Save";
+            btnSave.Location = new Point(optionsForm.Width-btnSave.Width-30, 60);
+            btnSave.Click += new EventHandler(btnSave_Click);
+            optionsForm.Controls.Add(btnSave);
            
             optionsForm.Show();
         }
@@ -109,9 +118,16 @@ namespace OvationTrendLook
             //MessageBox.Show("item: "+index+" Point: "+pointData[index].PointName+" maxScale "+pointData[index].MaxScale);
         }
 
+        void btnSave_Click(object sender, EventArgs e)
+        {
+            int index = listBox.SelectedIndex;
+            pointData[index].MaxScale = float.Parse(tboxMaxScale.Text.Trim());
+            pointData[index].MinScale = float.Parse(tboxMinScale.Text.Trim());
+        }
+
         void btnOK_Click(object sender, EventArgs e)
         {
-          
+            ovationTrendLookMainForm.form1PointDataSet(pointData);
            
         }
 	}

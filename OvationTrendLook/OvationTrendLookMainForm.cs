@@ -16,11 +16,13 @@ namespace OvationTrendLook
 		Graphics g;
 		Panel panel1, panel2;
 		Label[,] listOfPoints;
+        StatusBar statusBar;
 		Chart chart1;
 		ChartArea chartArea1;
 		Series[] series;
 		PointData[] pointData;
         DateTime[] date;
+        int cursorIndex=1;
 
 		public OvationTrendLookMainForm()
 		{
@@ -36,6 +38,9 @@ namespace OvationTrendLook
 
             addMainMenu();
 
+            statusBar = new StatusBar();
+            statusBar.Text="For start open data file......";
+            this.Controls.Add(statusBar);
 
 			panel1 = new Panel ();
 			panel1.Dock = DockStyle.Fill;
@@ -54,10 +59,10 @@ namespace OvationTrendLook
 			chartArea1.AxisY.MajorGrid.LineColor = Color.LightGray;
 			//chartArea1.BackColor = Color.Black;
 			chart1.ChartAreas.Add (chartArea1);
-			chart1.ChartAreas[0].CursorX.IsUserEnabled = true;
-			chart1.ChartAreas[0].CursorX.IsUserSelectionEnabled = true;
-			chart1.ChartAreas[0].AxisX.ScaleView.Zoomable = true;
-			chart1.ChartAreas[0].AxisX.ScrollBar.IsPositionedInside = true;
+            chart1.ChartAreas[0].CursorX.IsUserEnabled = false;
+            chart1.ChartAreas[0].CursorX.IsUserSelectionEnabled = false;
+            chart1.ChartAreas[0].AxisX.ScaleView.Zoomable = false;
+            chart1.ChartAreas[0].AxisX.ScrollBar.IsPositionedInside = false;
 			chart1.ChartAreas [0].CursorX.Interval = 0.0016;
 
 
@@ -118,9 +123,7 @@ namespace OvationTrendLook
 
 		void OnMouseMove (object sender, MouseEventArgs e)
 		{	
-            if (pointData != null & chart1.Series!=null)
-			{
-			Point mousePositionOnPanel=new Point(e.X, e.Y);
+        	Point mousePositionOnPanel=new Point(e.X, e.Y);
 			chart1.ChartAreas [0].CursorX.SetCursorPixelPosition (mousePositionOnPanel, true);
 			chart1.ChartAreas [0].CursorY.SetCursorPixelPosition (mousePositionOnPanel, true);
 
@@ -134,23 +137,24 @@ namespace OvationTrendLook
 //			labelValue.Width = 200;
 //			labelValue.Text = pointData[2].PointName+":"+pY;
 
-			listOfPoints [0, 1].Text =""+ date [(int)pX1];
+            listOfPoints [0, cursorIndex].Text =""+ date [(int)pX1];
 			for (int i = 1; i < pointData.Length; i++)
-			listOfPoints [i, 1].Text = ""+pointData [i].GetPointValueData ((int)pX1);
-			
-			}
+                listOfPoints [i, cursorIndex].Text = ""+pointData [i].GetPointValueData ((int)pX1);			
 		}
 
 
         void onDoubleClick(object sender, MouseEventArgs e)
         {
             g.DrawLine(new Pen(Color.Green, 2), new Point(e.X ,0), new Point(e.X, chart1.Height));
-            MessageBox.Show("DoubleClick");
+            if (cursorIndex<3)
+                cursorIndex++;
+            //MessageBox.Show("DoubleClick");
         }
 
 
 		void btnOpen_Click (object sender, EventArgs e)
 		{
+            statusBar.Text = "Opening file.";
 			OpenFileDialog openFileDialog1 = new OpenFileDialog();
 			openFileDialog1.InitialDirectory = "c:\\" ;
 			openFileDialog1.Filter = "txt files (*.txt)|*.txt|All files (*.*)|*.*" ;
@@ -169,12 +173,14 @@ namespace OvationTrendLook
 			{
 				MessageBox.Show("Error: Could not read file from disk. Original error: " + ex.Message);
 			}
+            statusBar.Text="File open";
 		}
 
 
 
 		void readDataFromFile (string str)
 		{
+            statusBar.Text = "Reading file";
 			StreamReader file = new StreamReader (str);
 			string[] lines = File.ReadAllLines (str, System.Text.Encoding.Unicode);
 
@@ -208,7 +214,7 @@ namespace OvationTrendLook
 		void brnDraw_Click (object sender, EventArgs e)
 		{
 			if (pointData != null) {
-            
+                statusBar.Text = "Drawing chart";
 				// Initialize series of chart1 for each point
                 initializeCahrtSeries ();
 
@@ -222,9 +228,9 @@ namespace OvationTrendLook
 					CreateYAxis(chart1,chart1.ChartAreas["Default"], chart1.Series["Series"+i], 2*i,2,pointData[i]);
 				}
 
-				listOfPoints = new Label[pointData.Length,2];
-				for (int i = 0; i < listOfPoints.Length/2; i++)
-					for (int j = 0; j <2; j++) {
+				listOfPoints = new Label[pointData.Length,4];
+                for (int i = 0; i < pointData.Length; i++)
+					for (int j = 0; j <4; j++) {
 						{
 							listOfPoints [i, j] = new Label ();
 							listOfPoints [i, j].Location = new Point (5+(j*300), (i * 15));
@@ -237,6 +243,7 @@ namespace OvationTrendLook
 					}
                 chart1.MouseMove += new MouseEventHandler (OnMouseMove); //MouseMove event on Chart1, Panel2 will work after clicked btnDraw
                 chart1.MouseDoubleClick += new MouseEventHandler(onDoubleClick);
+                statusBar.Text = ".....";
 			} else
 				MessageBox.Show ("Data was not load");
 
@@ -282,10 +289,12 @@ namespace OvationTrendLook
 			areaSeries.AxisY.MajorTickMark.Enabled = false;
 			areaSeries.AxisY.LabelStyle.Enabled = false;
 			areaSeries.AxisY.IsStartedFromZero = area.AxisY.IsStartedFromZero;
-		    pointData1.calcMaxMin ();
-			//areaSeries.AxisY.Maximum = pointData1.MaxScale;
-			//areaSeries.AxisY.Minimum = pointData1.MinScale;
-
+            if ((pointData1.MaxScale - pointData1.MaxScale) != 0)
+            {
+                //pointData1.calcMaxMin ();
+                areaSeries.AxisY.Maximum = pointData1.MaxScale;
+                areaSeries.AxisY.Minimum = pointData1.MinScale;
+            }
 
 			series.ChartArea = areaSeries.Name;
 
@@ -327,6 +336,7 @@ namespace OvationTrendLook
 
         void btnSaveToImage_Click(object sender, EventArgs e)
         {
+            statusBar.Text = "Save file";
             SaveFileDialog saveDialog = new SaveFileDialog();
             saveDialog.InitialDirectory = @"C:\";
             saveDialog.Title = "Save image";
@@ -337,14 +347,20 @@ namespace OvationTrendLook
             Bitmap bmp = new Bitmap(this.Width, this.Height);
             this.DrawToBitmap(bmp,new Rectangle(0,0,this.Width,this.Height));
             bmp.Save(name);
-            MessageBox.Show("File save. Path: "+name);
+            statusBar.Text = "File was save "+name;
         }
 
-
+        //For send data to form OptionsForm
         void openOptionsForm(object sender, EventArgs e)
         {
-            OptionsForm optionsForm = new OptionsForm(); 
+            OptionsForm optionsForm = new OptionsForm(this); 
             optionsForm.pointDataSet(pointData);
+        }
+
+        //For get data from form OptionsForm
+        public void form1PointDataSet(PointData[] p)
+        {
+            pointData = p;
         }
 	}
 }
