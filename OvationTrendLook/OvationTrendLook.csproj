@@ -43,5 +43,6 @@
     <Compile Include="OvationTrendLookMainForm.cs" />
     <Compile Include="PointData.cs" />
     <Compile Include="OptionsForm.cs" />
+    <Compile Include="MDIMainForm.cs" />
   </ItemGroup>
 </Project>

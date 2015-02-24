@@ -32,7 +32,7 @@ namespace OvationTrendLook
 
 		void InitializeInterfase ()
 		{
-			this.Text="Ovation Trend Look";
+			this.Text="New Window";
 			this.Height = 1024/2;
 			this.Width = 1024;
 
@@ -166,6 +166,7 @@ namespace OvationTrendLook
 				{
 					String str=openFileDialog1.FileName;
 					readDataFromFile(str);
+                    this.Text="File "+str;
 				}
 
 			}
@@ -206,8 +207,8 @@ namespace OvationTrendLook
 					pointData [j].AddValue (f);
 				}
 			}
-
-			MessageBox.Show (string.Format ("Data was read. Count is "+ pointData.Length+" "+pointData[1].GetPointValueCount()));
+            statusBar.Text="Data was read. Count is "+ pointData.Length+" "+pointData[1].GetPointValueCount();
+			//MessageBox.Show (string.Format ("Data was read. Count is "+ pointData.Length+" "+pointData[1].GetPointValueCount()));
 
 		}
 
@@ -215,6 +216,8 @@ namespace OvationTrendLook
 		{
 			if (pointData != null) {
                 statusBar.Text = "Drawing chart";
+                MenuItem menu1 = (MenuItem)sender;
+                menu1.Enabled = false;
 				// Initialize series of chart1 for each point
                 initializeCahrtSeries ();
 
@@ -256,7 +259,7 @@ namespace OvationTrendLook
 			int colorIndex = 0;
 			series = new Series[pointData.Length];
 
-			for (int i = 0; i < series.Length; i++) 
+			for (int i = 1; i < series.Length; i++) 
 			{
 				series [i] = new Series ();
 				series [i].Name = "Series" + i;

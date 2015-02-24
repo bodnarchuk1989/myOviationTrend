@@ -11,7 +11,7 @@ namespace OvationTrendLook
 
 			Application.EnableVisualStyles ();
 			Application.SetCompatibleTextRenderingDefault (false);
-			Application.Run (new OvationTrendLookMainForm ());
+            Application.Run (new MDIMainForm ());
 		}
 	}
 }

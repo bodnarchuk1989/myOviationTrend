@@ -111,7 +111,7 @@ namespace OvationTrendLook
 
         void listBox_Click(object sender, EventArgs e)
         {
-            int index = listBox.SelectedIndex;
+            int index = listBox.SelectedIndex+1;
             tboxMaxScale.Text = pointData[index].MaxScale.ToString();
             tboxMinScale.Text = pointData[index].MinScale.ToString();
             tboxColor.Text = pointData[index].ColorPoint.ToString();
@@ -120,7 +120,7 @@ namespace OvationTrendLook
 
         void btnSave_Click(object sender, EventArgs e)
         {
-            int index = listBox.SelectedIndex;
+            int index = listBox.SelectedIndex+1;
             pointData[index].MaxScale = float.Parse(tboxMaxScale.Text.Trim());
             pointData[index].MinScale = float.Parse(tboxMinScale.Text.Trim());
         }
