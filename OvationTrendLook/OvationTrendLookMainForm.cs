@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms.DataVisualization.Charting;
+using Finisar.SQLite;
 
 
 namespace OvationTrendLook
@@ -81,8 +82,9 @@ namespace OvationTrendLook
 			splitContainer.Panel1.Controls.Add (panel1);
 			splitContainer.Panel2.Controls.Add (panel2);
 			this.Controls.Add (splitContainer);
-
+          
             g = chart1.CreateGraphics ();
+
 		}
 
         void addMainMenu()
@@ -137,7 +139,7 @@ namespace OvationTrendLook
 //			labelValue.Width = 200;
 //			labelValue.Text = pointData[2].PointName+":"+pY;
 
-            listOfPoints [0, cursorIndex].Text =""+ date [(int)pX1];
+            listOfPoints [0, cursorIndex].Text =""+ date [(int)pX1].ToString("dd.MM.yyyy HH:mm:ss.ffff");
 			for (int i = 1; i < pointData.Length; i++)
                 listOfPoints [i, cursorIndex].Text = ""+pointData [i].GetPointValueData ((int)pX1);			
 		}
@@ -148,6 +150,23 @@ namespace OvationTrendLook
             g.DrawLine(new Pen(Color.Green, 2), new Point(e.X ,0), new Point(e.X, chart1.Height));
             if (cursorIndex<3)
                 cursorIndex++;
+            Label newLable1 = new Label();
+            newLable1.Top = 20;
+            newLable1.BorderStyle = BorderStyle.Fixed3D;
+            newLable1.Location = new Point(e.X,0);
+            newLable1.Width = 2;
+            newLable1.Height = chart1.Height;
+            newLable1.BackColor = Color.Red;
+            chart1.Controls.Add(newLable1);
+
+            Label newLable2 = new Label();
+            newLable2.Text = "marker: " + (cursorIndex-1);
+            newLable2.BackColor = Color.FloralWhite;
+            newLable2.Location=new Point(e.X+2,10);
+            newLable2.AutoSize = true;
+            newLable2.BorderStyle = BorderStyle.FixedSingle;
+            chart1.Controls.Add(newLable2);
+
             //MessageBox.Show("DoubleClick");
         }
 
@@ -191,6 +210,7 @@ namespace OvationTrendLook
 			for (int i = 0; i < pointData.Length; i++)
 			{
 				pointData[i]=new PointData(strName[i]);
+                pointData[i].PointAlias = getPointAliasFromDB(pointData[i].PointName);
 			}
 
             date = new DateTime[lines.Length - 1];
@@ -198,7 +218,25 @@ namespace OvationTrendLook
 			{
 				String[] pointValue = lines [i].Split ('\t');
                 pointValue[0]=pointValue[0].Trim ();
-                date[i - 1] = DateTime.Parse(pointValue[0]);
+                //date[i - 1] = DateTime.Parse(pointValue[0]);
+                switch (pointValue[0].Length)
+                {
+                    case 21:
+                        date[i - 1] = DateTime.ParseExact(pointValue[0], "dd.MM.yyyy HH:mm:ss.f", System.Globalization.CultureInfo.InvariantCulture);
+                        break;
+                    case 22:
+                        date[i - 1] = DateTime.ParseExact(pointValue[0], "dd.MM.yyyy HH:mm:ss.ff", System.Globalization.CultureInfo.InvariantCulture);
+                        break;
+                    case 23:
+                        date[i - 1] = DateTime.ParseExact(pointValue[0], "dd.MM.yyyy HH:mm:ss.fff", System.Globalization.CultureInfo.InvariantCulture);
+                        break;
+                    case 24:
+                        date[i - 1] = DateTime.ParseExact(pointValue[0], "dd.MM.yyyy HH:mm:ss.ffff", System.Globalization.CultureInfo.InvariantCulture);
+                        break;
+                    default:
+                        break;
+                }
+
                 //date[i - 1] = DateTime.ParseExact(pointValue[0], "dd.MM.yyyy HH:mm:ss.f", System.Globalization.CultureInfo.InvariantCulture); 
 				for (int j = 1; j < pointValue.Length; j++)
 				{
@@ -206,11 +244,28 @@ namespace OvationTrendLook
 					float f = float.Parse (pointValue[j], CultureInfo.InvariantCulture.NumberFormat);
 					pointData [j].AddValue (f);
 				}
+               
+
 			}
             statusBar.Text="Data was read. Count is "+ pointData.Length+" "+pointData[1].GetPointValueCount();
 			//MessageBox.Show (string.Format ("Data was read. Count is "+ pointData.Length+" "+pointData[1].GetPointValueCount()));
 
 		}
+
+        string getPointAliasFromDB(string pointName)
+        {
+            SQLiteConnection sql_con = new SQLiteConnection(@"Data Source=F:\ovationPoints2.db;Version=3;New=False;");
+            sql_con.Open();
+            SQLiteCommand sql_comand = sql_con.CreateCommand();
+            string str = pointName.Replace(".UNIT@UNIT1","");
+            string cmd=@"SELECT OvationDescription FROM UNIT1 WHERE ovationPointName LIKE '"+str+@"'";
+            sql_comand.CommandText = cmd;
+
+            string tmp=(string)sql_comand.ExecuteScalar();
+
+            sql_con.Close();
+            return tmp;
+        }
 
 		void brnDraw_Click (object sender, EventArgs e)
 		{
@@ -236,11 +291,11 @@ namespace OvationTrendLook
 					for (int j = 0; j <4; j++) {
 						{
 							listOfPoints [i, j] = new Label ();
-							listOfPoints [i, j].Location = new Point (5+(j*300), (i * 15));
+							listOfPoints [i, j].Location = new Point (5+(j*400), (i * 15));
 							listOfPoints [i, j].AutoSize = true;
                             listOfPoints[i, j].ForeColor = pointData[i].ColorPoint;
 							if(j>0) listOfPoints [i, j].Text = "0";
-								else listOfPoints [i, j].Text = pointData [i].PointName;
+                            else listOfPoints [i, j].Text = pointData [i].PointName+" "+pointData[i].PointAlias;
 							panel1.Controls.Add (listOfPoints [i, j]);
 						}
 					}

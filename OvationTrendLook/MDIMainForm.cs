@@ -18,7 +18,7 @@ namespace OvationTrendLook
             this.Width = 700;
             this.Text = "Trend look";
             this.IsMdiContainer = true;
-            
+            this.WindowState = FormWindowState.Maximized;            
 
             MainMenu mainMenu = new MainMenu();
             MenuItem mNewWindow = new MenuItem("New window");
@@ -45,12 +45,14 @@ namespace OvationTrendLook
             this.Menu = mainMenu;
 
             this.Show();
+            this.mNewWindow_Click(this, new EventArgs());
         }
 
         void mNewWindow_Click(object sender, EventArgs e)
         {
             OvationTrendLookMainForm window = new OvationTrendLookMainForm();
             window.MdiParent = this;
+            window.WindowState = FormWindowState.Maximized;
             window.Show();
         }
 
