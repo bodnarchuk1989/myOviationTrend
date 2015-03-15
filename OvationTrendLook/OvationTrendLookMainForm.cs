@@ -16,7 +16,7 @@ namespace OvationTrendLook
 	{
 		Graphics g;
 		Panel panel1, panel2;
-		Label[,] listOfPoints;
+        List<Label> lisrOfPoints1=new List<Label>();
         StatusBar statusBar;
 		Chart chart1;
 		ChartArea chartArea1;
@@ -128,28 +128,19 @@ namespace OvationTrendLook
         	Point mousePositionOnPanel=new Point(e.X, e.Y);
 			chart1.ChartAreas [0].CursorX.SetCursorPixelPosition (mousePositionOnPanel, true);
 			chart1.ChartAreas [0].CursorY.SetCursorPixelPosition (mousePositionOnPanel, true);
-
-			double pX1=0, pX = chartArea1.CursorX.Position; //X Axis Coordinate of your mouse cursor
+			
+            double pX1=0, pX = chartArea1.CursorX.Position; //X Axis Coordinate of your mouse cursor
 //			float pY=0; // = chartArea1.CursorY.Position;//Y Axis Coordinate of your mouse cursor
 			if ((int)(pX * 600) < 600)	pX1 = pX * 600;
-//			pY = pointData [1].GetPointValueData ((int)(pX * 600));
-//			labelTime.Width = 200;
-//			labelTime.Text = pointData[1].PointName+":"+pY;
-//			pY = pointData [2].GetPointValueData ((int)(pX * 600));
-//			labelValue.Width = 200;
-//			labelValue.Text = pointData[2].PointName+":"+pY;
 
-            listOfPoints [0, cursorIndex].Text =""+ date [(int)pX1].ToString("dd.MM.yyyy HH:mm:ss.ffff");
-			for (int i = 1; i < pointData.Length; i++)
-                listOfPoints [i, cursorIndex].Text = ""+pointData [i].GetPointValueData ((int)pX1);			
+            lisrOfPoints1[cursorIndex*pointData.Length].Text=""+ date [(int)pX1].ToString("dd.MM.yyyy HH:mm:ss.ffff");
+            for (int i = 1; i < pointData.Length; i++)
+                lisrOfPoints1[i+cursorIndex*pointData.Length].Text = ""+pointData [i].GetPointValueData ((int)pX1); 
 		}
 
 
         void onDoubleClick(object sender, MouseEventArgs e)
         {
-            g.DrawLine(new Pen(Color.Green, 2), new Point(e.X ,0), new Point(e.X, chart1.Height));
-            if (cursorIndex<3)
-                cursorIndex++;
             Label newLable1 = new Label();
             newLable1.Top = 20;
             newLable1.BorderStyle = BorderStyle.Fixed3D;
@@ -160,14 +151,14 @@ namespace OvationTrendLook
             chart1.Controls.Add(newLable1);
 
             Label newLable2 = new Label();
-            newLable2.Text = "marker: " + (cursorIndex-1);
+            newLable2.Text = "marker: " + (cursorIndex);
             newLable2.BackColor = Color.FloralWhite;
             newLable2.Location=new Point(e.X+2,10);
             newLable2.AutoSize = true;
             newLable2.BorderStyle = BorderStyle.FixedSingle;
             chart1.Controls.Add(newLable2);
-
-            //MessageBox.Show("DoubleClick");
+            cursorIndex++;
+            addNewLables((cursorIndex+1)*200);
         }
 
 
@@ -254,7 +245,7 @@ namespace OvationTrendLook
 
         string getPointAliasFromDB(string pointName)
         {
-            SQLiteConnection sql_con = new SQLiteConnection(@"Data Source=F:\ovationPoints2.db;Version=3;New=False;");
+            SQLiteConnection sql_con = new SQLiteConnection(@"Data Source=testDataBase1.db;Version=3;New=False;");
             sql_con.Open();
             SQLiteCommand sql_comand = sql_con.CreateCommand();
             string str = pointName.Replace(".UNIT@UNIT1","");
@@ -286,19 +277,20 @@ namespace OvationTrendLook
 					CreateYAxis(chart1,chart1.ChartAreas["Default"], chart1.Series["Series"+i], 2*i,2,pointData[i]);
 				}
 
-				listOfPoints = new Label[pointData.Length,4];
+				
+               
                 for (int i = 0; i < pointData.Length; i++)
-					for (int j = 0; j <4; j++) {
-						{
-							listOfPoints [i, j] = new Label ();
-							listOfPoints [i, j].Location = new Point (5+(j*400), (i * 15));
-							listOfPoints [i, j].AutoSize = true;
-                            listOfPoints[i, j].ForeColor = pointData[i].ColorPoint;
-							if(j>0) listOfPoints [i, j].Text = "0";
-                            else listOfPoints [i, j].Text = pointData [i].PointName+" "+pointData[i].PointAlias;
-							panel1.Controls.Add (listOfPoints [i, j]);
-						}
-					}
+                {
+                    Label tmpLable = new Label();
+                    tmpLable.Location = new Point (5, (i * 15));
+                    tmpLable.AutoSize = true;
+                    tmpLable.ForeColor = pointData[i].ColorPoint;
+                    tmpLable.Text = pointData [i].PointName+" "+pointData[i].PointAlias;
+                    panel1.Controls.Add (tmpLable);
+                    lisrOfPoints1.Add(tmpLable);
+                }
+                addNewLables(400);
+
                 chart1.MouseMove += new MouseEventHandler (OnMouseMove); //MouseMove event on Chart1, Panel2 will work after clicked btnDraw
                 chart1.MouseDoubleClick += new MouseEventHandler(onDoubleClick);
                 statusBar.Text = ".....";
@@ -306,7 +298,21 @@ namespace OvationTrendLook
 				MessageBox.Show ("Data was not load");
 
 		}
-			
+
+        void addNewLables(int shift)
+        {
+            for (int i = 0; i < pointData.Length; i++)
+            {
+                Label tmpLable = new Label();
+                tmpLable.Location = new Point(shift, (i * 15));
+                tmpLable.AutoSize = true;
+                tmpLable.ForeColor = pointData[i].ColorPoint;
+                tmpLable.Text = "0";
+                panel1.Controls.Add(tmpLable);
+                lisrOfPoints1.Add(tmpLable);
+            }
+
+        }			
 
 		void initializeCahrtSeries ()
 		{

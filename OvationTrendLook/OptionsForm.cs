@@ -18,8 +18,8 @@ namespace OvationTrendLook
         Button btnClose, btnOK, btnSave;
         PointData[] pointData;
         ListBox listBox;
-        Label labelMaxScale, labelMinScale, labelColor;
-        TextBox tboxMaxScale, tboxMinScale, tboxColor;
+        Label labelMaxScale, labelMinScale, labelColor, lablePointAlias ;
+        TextBox tboxMaxScale, tboxMinScale, tboxColor, tboxPointAlias;
         public OptionsForm(OvationTrendLookMainForm f)
         {
             ovationTrendLookMainForm = f;
@@ -38,34 +38,44 @@ namespace OvationTrendLook
 
             int locationX = listBox.Width + 20;
            
+            lablePointAlias = new Label();
+            lablePointAlias.Text = "Point Alis";
+            lablePointAlias.AutoSize = true;
+            lablePointAlias.Location = new Point(locationX,10);
+            optionsForm.Controls.Add(lablePointAlias);
+
+            tboxPointAlias = new TextBox();
+            tboxPointAlias.Location = new Point(locationX,25);
+            optionsForm.Controls.Add(tboxPointAlias);
+
             labelMaxScale = new Label();
             labelMaxScale.Text = "Max Scale";
             labelMaxScale.AutoSize = true;
-            labelMaxScale.Location = new Point(locationX,10);
+            labelMaxScale.Location = new Point(locationX,60);
             optionsForm.Controls.Add(labelMaxScale);
 
             tboxMaxScale = new TextBox();
-            tboxMaxScale.Location = new Point(locationX,25);
+            tboxMaxScale.Location = new Point(locationX,75);
             optionsForm.Controls.Add(tboxMaxScale);
 
             labelMinScale = new Label();
             labelMinScale.Text = "Mi Scale";
             labelMinScale.AutoSize = true;
-            labelMinScale.Location = new Point(locationX,60);
+            labelMinScale.Location = new Point(locationX,100);
             optionsForm.Controls.Add(labelMinScale);
 
             tboxMinScale = new TextBox();
-            tboxMinScale.Location = new Point(locationX,75);
+            tboxMinScale.Location = new Point(locationX,115);
             optionsForm.Controls.Add(tboxMinScale);
 
             labelColor = new Label();
             labelColor.Text = "Color";
             labelColor.AutoSize = true;
-            labelColor.Location = new Point(locationX,100);
+            labelColor.Location = new Point(locationX,150);
             optionsForm.Controls.Add(labelColor);
 
             tboxColor = new TextBox();
-            tboxColor.Location = new Point(locationX,115);
+            tboxColor.Location = new Point(locationX,165);
             optionsForm.Controls.Add(tboxColor);
 
             btnClose = new Button();
@@ -112,15 +122,16 @@ namespace OvationTrendLook
         void listBox_Click(object sender, EventArgs e)
         {
             int index = listBox.SelectedIndex+1;
+            tboxPointAlias.Text = pointData[index].PointAlias;
             tboxMaxScale.Text = pointData[index].MaxScale.ToString();
             tboxMinScale.Text = pointData[index].MinScale.ToString();
             tboxColor.Text = pointData[index].ColorPoint.ToString();
-            //MessageBox.Show("item: "+index+" Point: "+pointData[index].PointName+" maxScale "+pointData[index].MaxScale);
         }
 
         void btnSave_Click(object sender, EventArgs e)
         {
             int index = listBox.SelectedIndex+1;
+            pointData[index].PointAlias = tboxPointAlias.Text;
             pointData[index].MaxScale = float.Parse(tboxMaxScale.Text.Trim());
             pointData[index].MinScale = float.Parse(tboxMinScale.Text.Trim());
         }

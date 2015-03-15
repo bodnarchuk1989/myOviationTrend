@@ -38,7 +38,7 @@
     <Reference Include="System.Web.DataVisualization" />
     <Reference Include="System.Windows.Forms.DataVisualization" />
     <Reference Include="SQLite.NET">
-      <HintPath>..\SQLite.NET.dll</HintPath>
+      <HintPath>bin\Debug\SQLite.NET.dll</HintPath>
     </Reference>
     <Reference Include="System.Data" />
   </ItemGroup>
