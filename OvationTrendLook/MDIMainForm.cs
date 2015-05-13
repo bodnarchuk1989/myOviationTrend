@@ -41,6 +41,14 @@ namespace OvationTrendLook
                        
             mainMenu.MenuItems.Add(mWindow);
 
+            MenuItem mWorkWithDB = new MenuItem("Work with DB");
+
+            MenuItem mImportToDb = new MenuItem("Import to Data Base");
+            mImportToDb.Click += new EventHandler(mIbortToDB_Click);
+            mWorkWithDB.MenuItems.Add(mImportToDb);
+
+            mainMenu.MenuItems.Add(mWorkWithDB);
+
          
             this.Menu = mainMenu;
 
@@ -71,6 +79,11 @@ namespace OvationTrendLook
             this.LayoutMdi(MdiLayout.TileVertical);
         }
             
+        void mIbortToDB_Click(object sender, EventArgs e)
+        {
+            ImportToDBForm importForm = new ImportToDBForm();
+        }
     }
 }
 
+    

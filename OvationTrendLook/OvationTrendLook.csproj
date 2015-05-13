@@ -48,5 +48,7 @@
     <Compile Include="PointData.cs" />
     <Compile Include="OptionsForm.cs" />
     <Compile Include="MDIMainForm.cs" />
+    <Compile Include="ImportToDBForm.cs" />
+    <Compile Include="OvationPoint.cs" />
   </ItemGroup>
 </Project>
